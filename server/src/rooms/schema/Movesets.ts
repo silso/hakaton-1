@@ -25,13 +25,31 @@ export class MovesetBuilder {
 	}
 }
 
+export const CROSS = 
+	new MovesetBuilder().addAll([
+		[ 0,  1],
+		[-1,  0], [ 1,  0],
+		[ 0, -1],
+	]);
+
 export const RADIUS_1 = 
 	new MovesetBuilder().addAll([
 		[-1,  1], [ 0,  1], [ 1,  1],
-		[-1,  0], [ 0,  0], [ 1,  0],
+		[-1,  0]          , [ 1,  0],
 		[-1, -1], [ 0, -1], [ 1, -1],
 	]);
 
+export const RADIUS_2 = 
+	new MovesetBuilder().addAll([
+		[-2,  2], [-1,  2], [ 0,  2], [ 1,  2], [ 2,  2],
+		[-2,  1], [-1,  1], [ 0,  1], [ 1,  1], [ 2,  1],
+		[-2,  0], [-1,  0]          , [ 1,  0], [ 2,  0],
+		[-2, -1], [-1, -1], [ 0, -1], [ 1, -1], [ 2, -1],
+		[-2, -2], [-1, -2], [ 0, -2], [ 1, -2], [ 2, -2],
+	]);
+
 export const MOVESETS = [
+	CROSS,
 	RADIUS_1,
+	RADIUS_2,
 ];

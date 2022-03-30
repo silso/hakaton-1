@@ -5,6 +5,10 @@ import { Player } from './schema/Player';
 
 export class GameRoom extends Room<GameRoomState> {
 
+	private getPlayer(client: Client) {
+		return this.state.players.get(client.sessionId);
+	}
+
 	onCreate (options: any) {
 		console.log('room created.');
 		this.setState(new GameRoomState());
@@ -15,8 +19,14 @@ export class GameRoom extends Room<GameRoomState> {
 			//
 		});
 
-		this.onMessage('selectedAction', (client, message) => {
-			this.state.players.get(client.sessionId).selectedAction = new MovementAction();
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		this.onMessage('selectAction', (client, message) => {
+			this.getPlayer(client).selectedAction = new MovementAction();
+		});
+
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		this.onMessage('getReady', (client, message) => {
+			this.getPlayer(client).ready = true;
 		});
 
 		updateLobby(this);

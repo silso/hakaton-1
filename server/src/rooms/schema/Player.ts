@@ -13,7 +13,7 @@ export class Pawn extends Player {
 	@type(Position) position = new Position(0, 0);
 
 	move(movement: Movement) {
-		this.position = movement.getNewPosition(this.position);
+		this.position = this.position.add(movement.displacement);
 	}
 }
 
