@@ -4,6 +4,11 @@ import { Coord, Position } from './Position';
 export class Movement extends Schema {
 	@type(Coord) displacement = new Coord(0, 0);
 
+	constructor(x: number, y: number) {
+		super();
+		this.displacement = new Coord(x, y);
+	}
+
 	getNewPosition(oldPosition: Position): Position {
 		return oldPosition.add(this.displacement);
 	}
@@ -17,7 +22,7 @@ export class MovesetBuilder {
 	private moveset: Moveset;
 	addAll(pairs: [number, number][]) {
 		for (const pair of pairs) {
-			this.moveset.movements.add(new Movement(pair));
+			this.moveset.movements.add(new Movement(...pair));
 		}
 	}
 	build(): Moveset {

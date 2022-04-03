@@ -1,9 +1,11 @@
+import { Dispatcher } from '@colyseus/command';
 import { Room, Client, updateLobby } from 'colyseus';
-import { MovementAction } from './schema/Action';
+import { LockInCommand as LockInCommand, SelectActionCommand } from './command/Turn';
 import { GameRoomState } from './schema/GameRoomState';
 import { Player } from './schema/Player';
 
 export class GameRoom extends Room<GameRoomState> {
+	dispatcher = new Dispatcher(this);
 
 	private getPlayer(client: Client) {
 		return this.state.players.get(client.sessionId);
@@ -13,20 +15,23 @@ export class GameRoom extends Room<GameRoomState> {
 		console.log('room created.');
 		this.setState(new GameRoomState());
 
-		this.onMessage('', (client, message) => {
-			//
-			// handle "type" message
-			//
-		});
-
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		this.onMessage('selectAction', (client, message) => {
-			this.getPlayer(client).selectedAction = new MovementAction();
+			// this will tell the server to select an action according to the actionId and with the actionData
+			// this can end up just being bundled with the LockInCommand, and probably will be. But that shouldn't
+			// be a bad change at all.
+			this.dispatcher.dispatch(new SelectActionCommand(), {
+				player: this.getPlayer(client),
+				actionId: message.actionId,
+				actionData: message.actionData
+			});
 		});
 
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		this.onMessage('getReady', (client, message) => {
-			this.getPlayer(client).ready = true;
+		this.onMessage('lock-in', (client, message: string) => {
+			this.dispatcher.dispatch(new LockInCommand(), {
+				player: this.getPlayer(client)
+			});
 		});
 
 		updateLobby(this);
@@ -43,6 +48,7 @@ export class GameRoom extends Room<GameRoomState> {
 
 	onDispose() {
 		console.log('room', this.roomId, 'disposing...');
+		this.dispatcher.stop();
 	}
 
 }

@@ -3,6 +3,12 @@ import { Schema, type } from '@colyseus/schema';
 export class Coord extends Schema {
 	@type('number') x = 0;
 	@type('number') y = 0;
+
+	constructor(x: number, y: number) {
+		super();
+		this.x = x;
+		this.y = y;
+	}
 }
 
 export class Position extends Coord {
