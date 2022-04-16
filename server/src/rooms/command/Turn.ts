@@ -1,41 +1,31 @@
 import { Command } from '@colyseus/command';
-import { iIAll, iIMap } from '../../utilities/IterableIteratorUtils';
 import { GameRoom } from '../GameRoom';
-import { ActionData, ACTIONS, ACTION_ID } from '../schema/Action';
+import { ACTIONS, ActionInput } from '../schema/Action';
+import { Movement } from '../schema/actions/index';
 import { Player } from '../schema/Player';
 
-export class LockInCommand extends Command<GameRoom, {player: Player}> {
-	execute(payload: this['payload']): Command {
-		payload.player.ready = true;
-		// this will queue up this command next, I think.
-		return new CheckExecuteCommand();
-	}
-}
-
-export class CheckExecuteCommand extends Command<GameRoom> {
-	execute() {
-		if (iIAll(this.state.players.values(), (player) => player.ready)) {
-			return iIMap(this.state.players.values(), (player => new ExecuteTurnCommand().setPayload({player: player})));
-		}
-	}
-}
-
-export class ExecuteTurnCommand extends Command<GameRoom, {player: Player}> {
-	execute(payload: this['payload']) {
-		payload.player.selectedAction.execute();
-	}
-}
-
-export class SelectActionCommand extends Command<GameRoom, {player: Player, actionId: string, actionData: ActionData}> {
+export class ExecuteActionCommand extends Command<GameRoom, {player: Player, action: {actionId: string, actionData: ActionInput}}> {
 	validate(payload: this['payload']): boolean {
 		// this should fail the command if the actionId is not in the enum, I think.
-		return payload.actionId in ACTION_ID;
+		return true;//payload.action.actionId in ActionId;
 	}
 
-	execute(payload: this['payload']) {
+	execute({player, action: {actionId, actionData}}: this['payload']) {
+		console.log('executing action on player', player.toJSON());
 		// get the constructor for the respective actionId
-		const SelectedAction = ACTIONS.get(payload.actionId);
+		const SelectedAction = ACTIONS.get(actionId);
 		// then instantiate it with the player and actionData
-		payload.player.selectedAction = new SelectedAction(payload.player, payload.actionData);
+		const action = new SelectedAction(player);
+		if (action instanceof Movement.Action && Movement.isInputValid(actionData)) {
+			const newMovement = Movement.inputToPayload(actionData);
+			action.payload = newMovement;
+			console.log('movement to execute:', newMovement);
+		// } else if (action instanceof SwapTileAction && isPayloadTypeValid(action, actionData)) {
+		// 	actionData;
+		} else {
+			throw new Error(`Invalid action or action payload: ${actionId}, ${actionData}`);
+		}
+		action.execute();
+		console.log('action successfully executed on player', player.toJSON());
 	}
 }

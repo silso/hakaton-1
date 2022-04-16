@@ -1,13 +1,13 @@
 import { Dispatcher } from '@colyseus/command';
 import { Room, Client, updateLobby } from 'colyseus';
-import { LockInCommand as LockInCommand, SelectActionCommand } from './command/Turn';
+import { ExecuteActionCommand } from './command/Turn';
 import { GameRoomState } from './schema/GameRoomState';
 import { Player } from './schema/Player';
 
 export class GameRoom extends Room<GameRoomState> {
 	dispatcher = new Dispatcher(this);
 
-	private getPlayer(client: Client) {
+	private getPlayer(client: Client): Player {
 		return this.state.players.get(client.sessionId);
 	}
 
@@ -16,29 +16,26 @@ export class GameRoom extends Room<GameRoomState> {
 		this.setState(new GameRoomState());
 
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		this.onMessage('selectAction', (client, message) => {
-			// this will tell the server to select an action according to the actionId and with the actionData
-			// this can end up just being bundled with the LockInCommand, and probably will be. But that shouldn't
-			// be a bad change at all.
-			this.dispatcher.dispatch(new SelectActionCommand(), {
+		this.onMessage('execute-action', (client, message) => {
+			console.log('received execute-action', message);
+			const oldState = this.state.clone();
+			this.dispatcher.dispatch(new ExecuteActionCommand(), {
 				player: this.getPlayer(client),
-				actionId: message.actionId,
-				actionData: message.actionData
+				action: message
 			});
-		});
-
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		this.onMessage('lock-in', (client, message: string) => {
-			this.dispatcher.dispatch(new LockInCommand(), {
-				player: this.getPlayer(client)
-			});
+			if (!this.state.isValid()) {
+				console.log('invalid state, rolling back');
+				// rollback and give feedback somehow
+				this.setState(oldState);
+			}
+			console.log('successful execute-action');
 		});
 
 		updateLobby(this);
 	}
 
 	onJoin (client: Client, options: any) {
-		this.state.players.set(client.sessionId, new Player());
+		this.state.players.set(client.sessionId, new Player(this.state.board));
 		console.log(client.sessionId, 'joined!');
 	}
 

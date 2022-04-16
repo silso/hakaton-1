@@ -1,5 +1,6 @@
 {
   "editor.insertSpaces": false,
   "editor.detectIndentation": false,
-	"volar.tsPlugin": true
+	"volar.tsPlugin": true,
+	"typescript.tsdk": "./server/node_modules/typescript/lib"
 }

@@ -1,47 +1,31 @@
 import { Schema, type } from '@colyseus/schema';
-import { Movement } from './Movesets';
-import { Pawn, Player } from './Player';
+import { Player } from './Player';
+import { Tile } from './Tile';
+import { Movement } from './actions/index';
+import { ActionId } from './actions/BaseAction';
 
-// this feels a little janky, but oh well, not sure how else to give all actions the same type
-export type ActionData = {
-	movement?: ConstructorParameters<typeof Movement>;
-};
+// export class SwapTileAction extends BaseAction<Tile> {
+// 	id = ActionId.Test;
 
-export abstract class Action extends Schema {
-	@type('string') id = 'null-action';
-	@type(Player) player = new Player();
+// 	doExecute = () => {
+// 		console.log('test');
+// 	};
+// }
 
-	// payload isn't used because of the reason above
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	constructor(player: Player, payload: ActionData) {
-		super();
-		this.player = player;
+export type Actions = Movement.Action;// | SwapTileAction;
+export type ActionData = Actions['payload'];
+export type ActionInput = Movement.Input;
+
+export function isPayloadTypeValid<ActionType extends Actions>(action: ActionType, actionData: ActionData): actionData is ActionType['payload'] {
+	if (action instanceof Movement.Action && actionData.hasOwnProperty('displacement')) {
+		return true;
 	}
-
-	abstract execute: () => void;
+	// if (action instanceof SwapTileAction && actionData.hasOwnProperty('color')) {
+	// 	return true;
+	// }
 }
 
-export class MovementAction extends Action {
-	@type(Movement) movement = new Movement(0, 0);
-
-	constructor(player: Player, payload: ActionData) {
-		super(player, payload);
-		this.id = ACTION_ID.MOVEMENT;
-		this.movement = new Movement(...payload.movement);
-	}
-
-	execute = () => {
-		if (this.player instanceof Pawn) {
-			this.player.move(this.movement);
-		}
-	};
-}
-
-export enum ACTION_ID {
-	MOVEMENT = 'movement-action',
-}
-
-// typescript typing magic to set the type of the constructor
-export const ACTIONS = new Map<string, new(...args: ConstructorParameters<typeof Action>) => Action>([
-	[ACTION_ID.MOVEMENT, MovementAction],
+type ActionConstructor = new (player: Player) => Actions;
+export const ACTIONS = new Map<string, ActionConstructor>([
+	[ActionId.Movement, Movement.Action],
 ]);

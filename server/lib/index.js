@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const colyseus_1 = require("colyseus");
-const MyRoom_1 = require("./rooms/MyRoom");
+const GameRoom_1 = require("./rooms/GameRoom");
 const PORT = 2567;
 const gameServer = new colyseus_1.Server();
 gameServer.define('lobby', colyseus_1.LobbyRoom);
-gameServer.define('your_room', MyRoom_1.MyRoom).enableRealtimeListing();
+gameServer.define('game-room', GameRoom_1.GameRoom).enableRealtimeListing();
 gameServer.listen(PORT);
-console.log('gameServer', gameServer);

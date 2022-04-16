@@ -1,22 +1,24 @@
 import { Schema, type } from '@colyseus/schema';
-import { Action } from './Action';
+import { Validatable } from '../core/Validatable';
+import { Board } from './Board';
 import { Movement } from './Movesets';
 import { Position } from './Position';
+import { Tile } from './Tile';
 
-export class Player extends Schema {
+export class Player extends Schema implements Validatable {
 	@type('string') name = 'default-name';
-	@type('boolean') ready = false;
-	@type(Action) selectedAction: Action;
-}
-
-export class Pawn extends Player {
 	@type(Position) position = new Position(0, 0);
+	@type(Tile) ownedTile: Tile;
+
+	constructor(private board: Board) {
+		super();
+	}
+
+	isValid() {
+		return true;
+	}
 
 	move(movement: Movement) {
 		this.position = this.position.add(movement.displacement);
 	}
-}
-
-export class Overlord extends Player {
-
 }

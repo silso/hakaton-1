@@ -35,7 +35,9 @@
   },
   "dependencies": {
     "@colyseus/arena": "^0.14.22",
+    "@colyseus/command": "^0.2.1",
     "@colyseus/monitor": "^0.14.20",
+    "@colyseus/schema": "^1.0.34",
     "colyseus": "^0.14.20",
     "cors": "^2.8.5",
     "express": "^4.17.3"
