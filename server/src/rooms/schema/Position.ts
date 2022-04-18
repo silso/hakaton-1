@@ -1,4 +1,5 @@
 import { Schema, type } from '@colyseus/schema';
+import { Board } from './Board';
 
 export class Coord extends Schema {
 	@type('number') x = 0;
@@ -8,6 +9,14 @@ export class Coord extends Schema {
 		super();
 		this.x = x;
 		this.y = y;
+	}
+
+	toNumber(board: Board): number {
+		return this.y * board.width + this.x;
+	}
+
+	static fromNumber(num: number, board: Board): Coord {
+		return new Coord(Math.floor(num / board.width), num % board.width);
 	}
 }
 

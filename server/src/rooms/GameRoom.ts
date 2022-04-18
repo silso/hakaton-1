@@ -1,45 +1,64 @@
 import { Dispatcher } from '@colyseus/command';
 import { Room, Client, updateLobby } from 'colyseus';
-import { ExecuteActionCommand } from './command/Turn';
+import { ExecuteActionCommand, createAction } from './command/ExecuteAction';
 import { GameRoomState } from './schema/GameRoomState';
 import { Player } from './schema/Player';
+import { Validator } from './core/Validatable';
+import { ActionPayload } from './schema/Actions';
+import { AddPlayerCommand } from './command/AddPlayer';
 
 export class GameRoom extends Room<GameRoomState> {
-	dispatcher = new Dispatcher(this);
+	private dispatcher = new Dispatcher(this);
 
 	private getPlayer(client: Client): Player {
 		return this.state.players.get(client.sessionId);
 	}
 
-	onCreate (options: any) {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	onCreate (options: unknown) {
 		console.log('room created.');
 		this.setState(new GameRoomState());
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		this.onMessage('execute-action', (client, message) => {
-			console.log('received execute-action', message);
-			const oldState = this.state.clone();
-			this.dispatcher.dispatch(new ExecuteActionCommand(), {
-				player: this.getPlayer(client),
-				action: message
-			});
-			if (!this.state.isValid()) {
-				console.log('invalid state, rolling back');
-				// rollback and give feedback somehow
-				this.setState(oldState);
+		this.onMessage('execute-action',
+			(client, message: ActionPayload) => {
+				if (!this.state.players.has(client.sessionId)) {
+					client.send('invalid-session-id');
+				}
+				const action = createAction(this.getPlayer(client), message.actionId, this.state);
+				Validator.for(action)
+					.ifInvalid(() => client.send('invalid-action'))
+					.ifValid(() => {
+						this.dispatcher.dispatch(new ExecuteActionCommand(), {
+							action: action,
+							actionData: message.actionData
+						});
+					})
+					.validate();
 			}
-			console.log('successful execute-action');
-		});
+		);
 
 		updateLobby(this);
 	}
 
-	onJoin (client: Client, options: any) {
-		this.state.players.set(client.sessionId, new Player(this.state.board));
-		console.log(client.sessionId, 'joined!');
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	onJoin (client: Client, options: unknown) {
+		const addPlayerCommand = new AddPlayerCommand();
+		Validator.for(addPlayerCommand)
+			.ifInvalid(() => {
+				console.log('player cannot join', client.sessionId);
+				client.send('join-failed');
+			})
+			.ifValid(() => {
+				this.dispatcher.dispatch(addPlayerCommand, {sessionId: client.sessionId});
+				console.log('player joined!', client.sessionId);
+				client.send('join-succeeded');
+			})
+			.validate();
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onLeave (client: Client, consented: boolean) {
+		this.state.players.delete(client.sessionId);
 		console.log(client.sessionId, 'left!');
 	}
 

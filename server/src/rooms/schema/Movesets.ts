@@ -15,16 +15,15 @@ export class Movement extends Schema {
 	}
 
 	toNumber(board: Board): number {
-		return this.displacement.y * board.width + this.displacement.x;
+		return this.displacement.toNumber(board);
 	}
 
 	static fromNumber(num: number, board: Board): Movement {
-		return new Movement({x: Math.floor(num / board.width), y: num % board.width});
+		return new Movement(Coord.fromNumber(num, board));
 	}
 }
 
 export class Moveset extends Schema {
-	// this doesn't actually function as a proper set since it uses === comparison
 	@type({set: 'number'}) movements = new SetSchema<number>();
 }
 
