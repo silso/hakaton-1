@@ -3,9 +3,9 @@ export interface Validatable {
 }
 
 export class Validator {
-	private doCallbacks: Array<() => void>;
-	private validCallbacks: Array<() => void>;
-	private invalidCallbacks: Array<() => void>;
+	private doCallbacks: Array<() => void> = [];
+	private validCallbacks: Array<() => void> = [];
+	private invalidCallbacks: Array<() => void> = [];
 	protected constructor(private toValidate: Validatable) {}
 
 	do(callback: () => void): Validator {

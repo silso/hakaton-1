@@ -9,6 +9,7 @@ export class GameRoomState extends Schema implements Validatable {
 	@type(Board) board = new Board(4, 4);
 	@type({map: Player}) players = new MapSchema<Player>();
 	@type(PlayerPhase) phase: PlayerPhase;
+	@type('number') testNumber = 0;
 
 	isValid(): boolean {
 		console.log('checking validity');

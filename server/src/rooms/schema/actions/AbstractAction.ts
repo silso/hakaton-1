@@ -17,12 +17,16 @@ export abstract class AbstractAction<Payload> extends Schema implements Validata
 	}
 
 	isValid(): boolean {
+		if (this.payload === undefined || this.payload === null) {
+			throw new Error('Action payload is undefined');
+		}
+		console.log('working with state', this.state.toJSON());
 		if (this.state.phase.player !== this.player) {
-			// incorrect phase for this action's player
+			console.log('incorrect phase for this action\'s player');
 			return false;
 		}
 		if (this.state.phase.type !== this.id) {
-			// incorrect phase for this action's type
+			console.log('incorrect phase for this action\'s type', this.id, this.state.phase.type);
 			return false;
 		}
 		return this.doIsValid();
@@ -31,17 +35,17 @@ export abstract class AbstractAction<Payload> extends Schema implements Validata
 	protected abstract doIsValid: () => boolean;
 
 	execute(): void {
-		if (this.payload !== undefined && this.payload !== null) {
-			this.doExecute();
+		if (this.payload === undefined && this.payload === null) {
+			throw new Error('Action payload is undefined');
 		} else {
-			throw new Error('Action not initialized');
+			this.doExecute();
 		}
 	}
 
 	protected abstract doExecute: () => void;
 }
 
-export enum ActionId {
+export const enum ActionId {
 	Movement = 'movement-action',
 	SwapTile = 'swap-tile-action',
 }

@@ -2,17 +2,14 @@ import { ActionId } from './actions/AbstractAction';
 import { Schema, type } from '@colyseus/schema';
 import { Player } from './Player';
 
-// set enum PhaseType equal to ActionId
-export type PhaseType = ActionId;
-export const PhaseType = {...ActionId};
-
 export class PlayerPhase extends Schema {
 	@type(Player) player: Player;
-	@type('string') type: PhaseType;
+	@type('string') type: ActionId;
 
-	constructor(player: Player, phaseType: PhaseType) {
+	constructor(player: Player, actionId: ActionId) {
 		super();
+		console.log('i have player and action: ', player.toJSON(), actionId);
 		this.player = player;
-		this.type = phaseType;
+		this.type = actionId;
 	}
 }

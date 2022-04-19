@@ -4,9 +4,10 @@ import { Validatable } from '../core/Validatable';
 import { Player } from '../schema/Player';
 import { Tile, TileColor } from '../schema/Tile';
 import { Position } from '../schema/Position';
-import { PlayerPhase, PhaseType } from '../schema/Phase';
+import { PlayerPhase } from '../schema/Phase';
+import { ActionId } from '../schema/actions/AbstractAction';
 
-export const MAX_PLAYERS = 2;
+export const MAX_PLAYERS = 20;
 
 export class AddPlayerCommand extends Command<GameRoom, {sessionId: string}> implements Validatable {
 	isValid(): boolean {
@@ -19,10 +20,12 @@ export class AddPlayerCommand extends Command<GameRoom, {sessionId: string}> imp
 	execute(payload: this['payload']): void {
 		let player;
 		if (this.state.players.size === 0) {
+			console.log('adding player 1');
 			player = new Player(new Tile({color: TileColor.Red}));
 			player.position = new Position(0, 0);
-			this.state.phase = new PlayerPhase(player, PhaseType.Movement);
+			this.state.phase = new PlayerPhase(player, ActionId.Movement);
 		} else {
+			console.log('adding player 2');
 			player = new Player(new Tile({color: TileColor.Red}));
 			player.position = new Position(3, 3);
 		}

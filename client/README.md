@@ -1,4 +1,3 @@
-# Vue 3 + Typescript + Vite + TroisJS
+# Hakaton UI
 
-This template should help get you started developing with Vue 3 and Typescript in Vite.
-
+Using react-three-fiber to make a UI for the hakaton colyseus api game! :tada:

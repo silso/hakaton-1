@@ -1,21 +1,22 @@
 import assert from 'assert';
-import { ColyseusTestServer, boot } from '@colyseus/testing';
-
-// import your "arena.config.ts" file here.
-import appConfig from '../src/arena.config';
-import { MyRoomState } from '../src/rooms/schema/MyRoomState';
+import { ColyseusTestServer } from '@colyseus/testing';
+import { GameRoomState } from '../src/rooms/schema/GameRoomState';
+import { GameRoom } from '../src/rooms/GameRoom';
+import { Server } from 'colyseus';
 
 describe('testing your Colyseus app', () => {
+	const server = new Server();
+	server.define('game-room', GameRoom);
 	let colyseus: ColyseusTestServer;
 
-	before(async () => colyseus = await boot(appConfig));
+	before(async () => colyseus = new ColyseusTestServer(server));
 	after(async () => colyseus.shutdown());
 
 	beforeEach(async () => await colyseus.cleanup());
 
 	it('connecting into a room', async () => {
 		// `room` is the server-side Room instance reference.
-		const room = await colyseus.createRoom<MyRoomState>('my_room', {});
+		const room = await colyseus.createRoom<GameRoomState>('game-room', {});
 
 		// `client1` is the client-side `Room` instance reference (same as JavaScript SDK)
 		const client1 = await colyseus.connectTo(room);
