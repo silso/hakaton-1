@@ -33,9 +33,7 @@ export class GameRoom extends Room<GameRoomState> {
 					})
 					.ifValid(() => {
 						console.log('execute-action is valid');
-						this.dispatcher.dispatch(new ExecuteActionCommand(), {
-							action: action
-						});
+						this.dispatcher.dispatch(new ExecuteActionCommand(), {action});
 					})
 					.validate();
 			}

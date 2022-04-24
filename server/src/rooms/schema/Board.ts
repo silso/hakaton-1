@@ -1,4 +1,4 @@
-import { Schema, type } from '@colyseus/schema';
+import { Schema, type, ArraySchema } from '@colyseus/schema';
 import { Validatable } from '../core/Validatable';
 import { Moveset, MovesetBuilder } from './Movesets';
 import { Tile, TileColor } from './Tile';
@@ -6,7 +6,7 @@ import { Tile, TileColor } from './Tile';
 export class Board extends Schema implements Validatable {
 	@type('number') width = 4;
 	@type('number') height = 4;
-	@type([Tile]) tiles: Tile[] = [];
+	@type([Tile]) tiles = new ArraySchema<Tile>();
 
 	tileMovesets: Map<TileColor, Moveset>;
 	

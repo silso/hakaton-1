@@ -3,12 +3,12 @@ import { iIAll, iIMap } from '../../utilities/IterableIteratorUtils';
 import { Validatable } from '../core/Validatable';
 import { Board } from './Board';
 import { Player } from './Player';
-import { PlayerPhase } from './Phase';
+import { Phase } from './Phase';
 
 export class GameRoomState extends Schema implements Validatable {
 	@type(Board) board = new Board(4, 4);
 	@type({map: Player}) players = new MapSchema<Player>();
-	@type(PlayerPhase) phase: PlayerPhase;
+	@type(Phase) phase: Phase;
 	@type('number') testNumber = 0;
 
 	isValid(): boolean {

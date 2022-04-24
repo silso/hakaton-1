@@ -2,6 +2,7 @@ import { Schema, type } from '@colyseus/schema';
 import { Player } from '../Player';
 import { GameRoomState } from '../GameRoomState';
 import { Validatable } from '../../core/Validatable';
+import { PlayerPhase } from '../Phase';
 
 export abstract class AbstractAction<Payload> extends Schema implements Validatable {
 	@type('string') id: ActionId;
@@ -21,7 +22,7 @@ export abstract class AbstractAction<Payload> extends Schema implements Validata
 			throw new Error('Action payload is undefined');
 		}
 		console.log('working with state', this.state.toJSON());
-		if (this.state.phase.player !== this.player) {
+		if (this.state.phase instanceof PlayerPhase && this.state.phase.player !== this.player) {
 			console.log('incorrect phase for this action\'s player');
 			return false;
 		}
