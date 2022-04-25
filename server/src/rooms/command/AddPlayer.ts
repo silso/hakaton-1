@@ -20,13 +20,13 @@ export class AddPlayerCommand extends Command<GameRoom, {sessionId: string}> imp
 	execute(payload: this['payload']): void {
 		let player;
 		if (this.state.players.size === 0) {
-			console.log('adding player 1');
-			player = new Player(new Tile({color: TileColor.Red}));
+			console.log(`adding ${payload.sessionId} as player 1`);
+			player = new Player(new Tile({color: TileColor.Red}), payload.sessionId);
 			player.position = new Position(0, 0);
 			this.state.phase = new PlayerPhase(player, ActionId.Movement);
 		} else {
-			console.log('adding player 2');
-			player = new Player(new Tile({color: TileColor.Red}));
+			console.log(`adding ${payload.sessionId} as player 2`);
+			player = new Player(new Tile({color: TileColor.Red}), payload.sessionId);
 			player.position = new Position(3, 3);
 		}
 		this.state.players.set(payload.sessionId, player);

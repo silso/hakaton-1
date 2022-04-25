@@ -16,7 +16,7 @@ export class GameRoom extends Room<GameRoomState> {
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onCreate (options: unknown) {
-		console.log('room created.');
+		console.log('\nroom created.');
 		this.setState(new GameRoomState());
 
 		this.onMessage('execute-action',
@@ -46,7 +46,7 @@ export class GameRoom extends Room<GameRoomState> {
 				this.state.testNumber++;
 			}
 		);
-
+		
 		updateLobby(this);
 	}
 
@@ -61,8 +61,9 @@ export class GameRoom extends Room<GameRoomState> {
 			})
 			.ifValid(() => {
 				this.dispatcher.dispatch(addPlayerCommand, {sessionId: client.sessionId});
-				console.log(client.sessionId, 'joined!');
-				client.send('join-succeeded');
+				console.log(client.sessionId, 'has joined!');
+				console.log('Current number of players: ', this.state.players.size);
+				client.send('join-succeeded', client.sessionId);
 			})
 			.validate();
 	}

@@ -47,7 +47,7 @@ function Tile(props: {
                 <meshBasicMaterial
                     color={props.tileData.color}
                     transparent
-                    opacity={0.3}
+                    opacity={0.4}
                     side={DoubleSide}
                 />
                 <Edges

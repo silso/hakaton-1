@@ -8,8 +8,18 @@ export default class Game {
 		this.room = room
 	}
 
+	initialize(): void {
+		console.log(`${this.room.sessionId} attempting to join ${this.room.name}`)
+		document.title = `${this.room.sessionId}'s game`
+		this.room.onStateChange((state) => {console.log('called onStateChange in game', state);});
+
+		this.room.onMessage('join-succeeded', clientId => {
+			console.log(`${clientId} successfully joined room!`)
+		})
+	}
+
 	sendTestMessage(): void {
-		console.log(this.room.sessionId, 'joined', this.room.name)
+		console.log('beep boop sent test-message')
 		this.room.send('test-message', {})
 	}
 
