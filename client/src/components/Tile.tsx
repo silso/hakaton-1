@@ -1,8 +1,14 @@
 import { Edges } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import React, { useRef } from 'react'
-import { DoubleSide } from 'three'
+import React, { useMemo, useRef } from 'react'
+import { DoubleSide, BoxBufferGeometry } from 'three'
 import { TileData } from '../classes/TileData'
+import {
+    Selection,
+    Select,
+    EffectComposer,
+    Outline,
+} from '@react-three/postprocessing'
 
 // type selectionFunction = (tile: TileData) => TileData;
 
@@ -28,11 +34,49 @@ function Tile(props: {
 
     function selectTile() {
         props.handleSelection(props.tileData.id)
+        console.log(`handled selection, tile ${props.tileData.id} is selected`)
     }
 
     return (
         <>
-            <mesh
+            <Selection>
+                <EffectComposer multisampling={8} autoClear={false}>
+                    <Outline
+                        blur
+                        visibleEdgeColor={0xffaa00}
+                        edgeStrength={100}
+                        width={500}
+                    />
+                </EffectComposer>
+                {console.log(`before Select, props is ${props.tileData.id}`)}
+                <Select enabled={props.tileData.id == 33}>
+                    <mesh
+                        ref={ref}
+                        rotation={[Math.PI / 2, 0, 0]}
+                        scale={[1, 1, 1]}
+                        position={[
+                            props.tileData.x,
+                            props.tileData.y,
+                            props.tileData.z,
+                        ]}
+                        onClick={selectTile}
+                    >
+                        <boxBufferGeometry args={[0.8, 0.8, 0.2]} />
+                        <meshBasicMaterial
+                            color={props.tileData.color}
+                            transparent
+                            opacity={0.4}
+                            side={DoubleSide}
+                        />
+                        {/* <Edges
+                    scale={1}
+                    threshold={15} // Display edges only when the angle between two faces exceeds this value (default=15 degrees)
+                    color="black"
+                /> */}
+                    </mesh>
+                </Select>
+            </Selection>
+            {/* <mesh
                 ref={ref}
                 rotation={[Math.PI / 2, 0, 0]}
                 scale={[1, 1, 1]}
@@ -41,21 +85,10 @@ function Tile(props: {
                     props.tileData.y,
                     props.tileData.z,
                 ]}
-                onClick={selectTile}
             >
-                <boxBufferGeometry args={[0.8, 0.8, 0.2]} />
-                <meshBasicMaterial
-                    color={props.tileData.color}
-                    transparent
-                    opacity={0.4}
-                    side={DoubleSide}
-                />
-                <Edges
-                    scale={1}
-                    threshold={15} // Display edges only when the angle between two faces exceeds this value (default=15 degrees)
-                    color="black"
-                />
-            </mesh>
+                <sphereBufferGeometry args={[0.1, 12, 12]} />
+                <meshStandardMaterial color="#ffaa00" emissive="#ff0000" />
+            </mesh> */}
         </>
     )
 }

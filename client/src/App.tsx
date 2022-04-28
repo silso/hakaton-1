@@ -57,6 +57,7 @@ async function createGame(): Promise<void> {
 
 function Environment(props: { initialTileDataList: TileData[] }) {
     const [tileDataList, setTileDataList] = useState(props.initialTileDataList)
+    const [selectedTile, setSelectedTile] = useState(new TileData(-1, 0, 0, 0))
     // const [gameRoom, setGameRoom] = useState(new Colyseus.Room<GameRoomState>(''))
 
     useEffect(() => {
@@ -72,20 +73,18 @@ function Environment(props: { initialTileDataList: TileData[] }) {
         clientGameRoom.sendTestMessage()
     }
 
+    // TODO - currently poc functionality, need to sync up with server's swap and movement actions
     function handleSelection(tileId: number) {
         setTileDataList((currTileData: TileData[]) => {
             return currTileData.map((tile) => {
                 // console.log('handleSelection data: ', data)
                 // console.log('handleSelection tile: ', tileId)
                 if (tile.id === tileId) {
-                    // data.setTileDataColor(
-                    //     data.color === 'orange' ? 'green' : 'orange'
-                    // )
-                    // console.log('the new colors is: ', data.color)
-                    // return data
-                    return tile.color === 'orange'
-                        ? { ...tile, color: 'green' }
-                        : { ...tile, color: 'orange' }
+                    selectedTile.selected = false
+                    console.log(`setting previous tile ${tile.id} to false`)
+                    setSelectedTile(tile)
+                    console.log(`setting new tile ${tile.id} to true`)
+                    selectedTile.selected = true
                 }
                 return tile
             })
@@ -95,7 +94,7 @@ function Environment(props: { initialTileDataList: TileData[] }) {
     return (
         <>
             <button type="button" onClick={handleButtonPress}>
-                Click me!
+                Call sendTestMessage!
             </button>
             <Canvas>
                 <OrbitControls />
@@ -103,7 +102,7 @@ function Environment(props: { initialTileDataList: TileData[] }) {
                 <color attach="background" args={['black']} />
                 <ambientLight intensity={0.5} />
                 <pointLight position={[10, 10, 10]} />
-                <PerspectiveCamera position={[-5, 5, 0]} makeDefault />
+                <PerspectiveCamera position={[-2, 5, 0]} makeDefault />
                 <Map
                     tileDataList={tileDataList}
                     handleSelection={handleSelection}
