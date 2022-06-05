@@ -25,6 +25,7 @@ function Map(props: {
     tileDataList: TileData[]
     handleSelection: (tile: number) => void
 }) {
+    console.log('yuck a new map')
     return (
         <>
             {props.tileDataList.map((tileData: TileData) => (
@@ -80,11 +81,9 @@ function Environment(props: { initialTileDataList: TileData[] }) {
                 // console.log('handleSelection data: ', data)
                 // console.log('handleSelection tile: ', tileId)
                 if (tile.id === tileId) {
+                    console.log(`setting ${selectedTile.id} to false selected`)
                     selectedTile.selected = false
-                    console.log(`setting previous tile ${tile.id} to false`)
                     setSelectedTile(tile)
-                    console.log(`setting new tile ${tile.id} to true`)
-                    selectedTile.selected = true
                 }
                 return tile
             })

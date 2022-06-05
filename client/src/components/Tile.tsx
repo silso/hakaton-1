@@ -1,6 +1,6 @@
 import { Edges } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import React, { useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { DoubleSide, BoxBufferGeometry } from 'three'
 import { TileData } from '../classes/TileData'
 import {
@@ -19,6 +19,11 @@ function Tile(props: {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const ref = useRef<THREE.Mesh>(null!)
 
+    useEffect(() => {
+        // TODO: setState is asynchronous, cannot request the state right after to get the updated value https://dev.to/anantbahuguna/3-mistakes-to-avoid-when-updating-react-state-45gp
+        console.log('inside useEffect')
+    }, [props.tileData])
+
     useFrame(() => {
         // ref.current.rotation.z += (Math.random() - 0.5) * 0.2
         // ref.current.rotation.y += (Math.random() - 0.5) * 0.2
@@ -33,23 +38,37 @@ function Tile(props: {
     // console.log('inside Tile', props.tileData)
 
     function selectTile() {
+        if (props.tileData.selected) {
+            // if tile is already selected, unselect and set id -1 as selectedTile
+            console.log('Tile is already selected, should deselect...')
+            props.handleSelection(-1)
+            return
+        }
+        props.tileData.selected = true
         props.handleSelection(props.tileData.id)
         console.log(`handled selection, tile ${props.tileData.id} is selected`)
+        console.log(props.tileData.selected)
     }
 
     return (
         <>
             <Selection>
-                <EffectComposer multisampling={8} autoClear={false}>
+                <EffectComposer multisampling={1} autoClear={false}>
                     <Outline
                         blur
                         visibleEdgeColor={0xffaa00}
-                        edgeStrength={100}
-                        width={500}
+                        edgeStrength={10}
+                        width={800}
+                        height={800}
+                        kernelSize={2}
                     />
                 </EffectComposer>
-                {console.log(`before Select, props is ${props.tileData.id}`)}
-                <Select enabled={props.tileData.id == 33}>
+                <Select enabled={props.tileData.selected}>
+                    {console.log(
+                        'tile',
+                        props.tileData.selected,
+                        props.tileData
+                    )}
                     <mesh
                         ref={ref}
                         rotation={[Math.PI / 2, 0, 0]}
@@ -63,7 +82,11 @@ function Tile(props: {
                     >
                         <boxBufferGeometry args={[0.8, 0.8, 0.2]} />
                         <meshBasicMaterial
-                            color={props.tileData.color}
+                            color={
+                                props.tileData.selected
+                                    ? 'black'
+                                    : props.tileData.color
+                            }
                             transparent
                             opacity={0.4}
                             side={DoubleSide}
