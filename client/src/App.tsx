@@ -1,9 +1,4 @@
-import {
-    Html,
-    OrbitControls,
-    PerspectiveCamera,
-    Stars,
-} from '@react-three/drei'
+import { OrbitControls, PerspectiveCamera, Stars } from '@react-three/drei'
 import React, { useEffect, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { TileData } from './classes/TileData'
@@ -23,15 +18,16 @@ let clientGameRoom: Game = new Game(
 // returns a list of the 2D array of Tiles that make up the Map
 function Map(props: {
     tileDataList: TileData[]
+    selectedTile: number
     handleSelection: (tile: number) => void
 }) {
-    console.log('yuck a new map')
     return (
         <>
             {props.tileDataList.map((tileData: TileData) => (
                 <Tile
                     key={tileData.id}
                     tileData={tileData}
+                    selectedTile={props.selectedTile}
                     handleSelection={props.handleSelection}
                 />
             ))}
@@ -56,9 +52,9 @@ async function createGame(): Promise<void> {
     }
 }
 
-function Environment(props: { initialTileDataList: TileData[] }) {
-    const [tileDataList, setTileDataList] = useState(props.initialTileDataList)
-    const [selectedTile, setSelectedTile] = useState(new TileData(-1, 0, 0, 0))
+function Environment(props: { initialTileList: TileData[] }) {
+    const [tileDataList, setTileDataList] = useState(props.initialTileList)
+    const [selectedTileId, setSelectedTileId] = useState(-1)
     // const [gameRoom, setGameRoom] = useState(new Colyseus.Room<GameRoomState>(''))
 
     useEffect(() => {
@@ -76,14 +72,29 @@ function Environment(props: { initialTileDataList: TileData[] }) {
 
     // TODO - currently poc functionality, need to sync up with server's swap and movement actions
     function handleSelection(tileId: number) {
+        console.log('in handleSelection')
+        // setTileDataList((currTileData: TileData[]) => {
+        //     return currTileData.map((tile) => {
+        //         // console.log('handleSelection data: ', data)
+        //         // console.log('handleSelection tile: ', tileId)
+        //         if (tile.id === tileId) {
+        //             console.log(`setting ${selectedTile.id} to false selected`)
+        //             selectedTile.selected = false
+        //             setSelectedTile(tile)
+        //         }
+        //         return tile
+        //     })
+        // })
+        // NEW METHOD USING SPREAD OPERATOR, since updating an array in place may not re-render the component
         setTileDataList((currTileData: TileData[]) => {
+            const previousTileId = selectedTileId
+            setSelectedTileId(tileId)
             return currTileData.map((tile) => {
-                // console.log('handleSelection data: ', data)
-                // console.log('handleSelection tile: ', tileId)
-                if (tile.id === tileId) {
-                    console.log(`setting ${selectedTile.id} to false selected`)
-                    selectedTile.selected = false
-                    setSelectedTile(tile)
+                if (tile.id == tileId || tile.id == previousTileId) {
+                    // second || condition is for temp test purposes, to allow for tiles to switch colors
+                    const newTile = { ...tile }
+                    newTile.color = tile.id == tileId ? 'magenta' : 'white' // TEST PURPOSES
+                    return newTile
                 }
                 return tile
             })
@@ -104,6 +115,7 @@ function Environment(props: { initialTileDataList: TileData[] }) {
                 <PerspectiveCamera position={[-2, 5, 0]} makeDefault />
                 <Map
                     tileDataList={tileDataList}
+                    selectedTile={selectedTileId}
                     handleSelection={handleSelection}
                 />
             </Canvas>
@@ -112,6 +124,6 @@ function Environment(props: { initialTileDataList: TileData[] }) {
 }
 
 export default function App() {
-    const initialTileDataList: TileData[] = initializeMap(MAP_WIDTH)
-    return <Environment initialTileDataList={initialTileDataList} />
+    const initialTileList: TileData[] = initializeMap(MAP_WIDTH)
+    return <Environment initialTileList={initialTileList} />
 }

@@ -4,15 +4,13 @@ export class TileData {
     y:number;
     z:number;
     color:string;
-	selected:boolean;
 
-    constructor(id: number, x: number, y: number, z: number, color?: string, selected?: boolean) {
+    constructor(id: number, x: number, y: number, z: number, color?: string) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.z = z;
         this.color = color ?? "orange";
-		this.selected = selected || false;
     }
 
     // getTileDataPosition() {
