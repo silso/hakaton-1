@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DoubleSide } from 'three'
 import { TileData } from '../classes/TileData'
 import {
@@ -17,14 +17,20 @@ function Tile(props: {
     handleSelection: (id: number) => void
 }) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const ref = useRef<THREE.Mesh>(null!)
+    const [isOutlined, setIsOutlined] = useState(false)
 
     useEffect(() => {
         // TODO: setState is asynchronous, cannot request the state right after to get the updated value https://dev.to/anantbahuguna/3-mistakes-to-avoid-when-updating-react-state-45gp
         console.log(`inside useEffect for tile ${props.tileData.id}`)
         console.log(`current selectedTile: ${props.selectedTile}`)
+        document.title = `Tile is ${props.selectedTile}` // DEBUG PURPOSES
+
         if (props.tileData.id == props.selectedTile) {
-            // props.tileData.color = 'white' // TEMP: for testing purposes
+            setIsOutlined(true)
+            console.log(`Tile ${props.tileData.id} outline is TRUE`)
+        } else {
+            setIsOutlined(false)
+            console.log(`Tile ${props.tileData.id} outline is FALSE`)
         }
     }, [props.tileData])
 
@@ -56,57 +62,52 @@ function Tile(props: {
         props.handleSelection(props.tileData.id)
     }
 
+    function TileBox() {
+        const ref = useRef<THREE.Mesh>(null!)
+        return (
+            <Select enabled={true}>
+                <mesh
+                    ref={ref}
+                    rotation={[Math.PI / 2, 0, 0]}
+                    scale={[1, 1, 1]}
+                    position={[
+                        props.tileData.x,
+                        props.tileData.y,
+                        props.tileData.z,
+                    ]}
+                    onClick={selectTile}
+                    // onPointerOver={() => setIsOutlined(true)}
+                    // onPointerOut={() => setIsOutlined(false)}
+                >
+                    <boxGeometry args={[0.8, 0.8, 0.2]} />
+                    <meshBasicMaterial
+                        color={props.tileData.color}
+                        transparent
+                        opacity={0.4}
+                        side={DoubleSide}
+                    />
+                </mesh>
+            </Select>
+        )
+    }
+
     return (
         <>
-            <Selection>
-                <EffectComposer multisampling={1} autoClear={false}>
-                    <Outline
-                        blur
-                        visibleEdgeColor={0xffaa00}
-                        edgeStrength={100}
-                        width={500}
-                    />
-                </EffectComposer>
-                <Select enabled={props.tileData.id === props.selectedTile}>
-                    <mesh
-                        ref={ref}
-                        rotation={[Math.PI / 2, 0, 0]}
-                        scale={[1, 1, 1]}
-                        position={[
-                            props.tileData.x,
-                            props.tileData.y,
-                            props.tileData.z,
-                        ]}
-                        onClick={selectTile}
-                    >
-                        <boxBufferGeometry args={[0.8, 0.8, 0.2]} />
-                        <meshBasicMaterial
-                            color={props.tileData.color}
-                            transparent
-                            opacity={0.4}
-                            side={DoubleSide}
+            {isOutlined ? (
+                <Selection>
+                    <EffectComposer multisampling={1} autoClear={false}>
+                        <Outline
+                            blur
+                            visibleEdgeColor={0xffaa00}
+                            edgeStrength={100}
+                            width={500}
                         />
-                        {/* <Edges
-                    scale={1}
-                    threshold={15} // Display edges only when the angle between two faces exceeds this value (default=15 degrees)
-                    color="black"
-                /> */}
-                    </mesh>
-                </Select>
-            </Selection>
-            {/* <mesh
-                ref={ref}
-                rotation={[Math.PI / 2, 0, 0]}
-                scale={[1, 1, 1]}
-                position={[
-                    props.tileData.x,
-                    props.tileData.y,
-                    props.tileData.z,
-                ]}
-            >
-                <sphereBufferGeometry args={[0.1, 12, 12]} />
-                <meshStandardMaterial color="#ffaa00" emissive="#ff0000" />
-            </mesh> */}
+                    </EffectComposer>
+                    <TileBox />
+                </Selection>
+            ) : (
+                <TileBox />
+            )}
         </>
     )
 }
