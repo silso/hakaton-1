@@ -1,10 +1,8 @@
-import { AbstractAction, ActionId } from './AbstractAction';
+import { AbstractAction } from './AbstractAction';
 import { Tile } from '../Tile';
 
 // actual actions
-export class Action extends AbstractAction<Tile> {
-	id = ActionId.SwapTile;
-
+export class SwapTileAction extends AbstractAction<Tile> {
 	doIsValid = () => {
 		// yeah nothing to check for
 		return true;
@@ -17,17 +15,12 @@ export class Action extends AbstractAction<Tile> {
 		let boardTile = board.tiles.at(position.toNumber(board));
 		[playerTile, boardTile] = [boardTile, playerTile];
 	};
+
+	isInputValid = (input: Record<string, unknown>): input is SwapTileInput => {
+		return input.hasOwnProperty('color');
+	};
+
+	inputToPayload = (input: SwapTileInput) => new Tile(input);
 }
 
-export type Input = ConstructorParameters<typeof Tile>[0];
-
-export function isInputValid(input: Record<string, unknown>): input is Input {
-	if (input.hasOwnProperty('color')) {
-		return true;
-	}
-	return false;
-}
-
-export function inputToPayload(input: Input): Tile {
-	return new Tile(input);
-}
+export type SwapTileInput = ConstructorParameters<typeof Tile>[0];

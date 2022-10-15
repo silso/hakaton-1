@@ -11,7 +11,7 @@ export const MAX_PLAYERS = 20;
 
 export class AddPlayerCommand extends Command<GameRoom, {sessionId: string}> implements Validatable {
 	isValid(): boolean {
-		if (this.state.players.size === MAX_PLAYERS) {
+		if (this.state.players.size >= MAX_PLAYERS) {
 			return false;
 		}
 		return true;

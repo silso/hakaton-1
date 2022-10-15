@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"baseUrl": "./",
 		"outDir": "lib",
 		"target": "es6",
 		"module": "commonjs",
@@ -9,7 +10,10 @@
 		"esModuleInterop": true,
 		"experimentalDecorators": true,
 		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+		"paths": {
+			"@shared/*": ["../shared/src/*"]
+		}
 	},
 	"include": [
 		"src",

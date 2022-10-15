@@ -1,11 +1,9 @@
-import { AbstractAction, ActionId } from './AbstractAction';
-import { Movement } from '../Movesets';
 import { iIAll } from '../../../utilities/IterableIteratorUtils';
+import { Movement } from '../Movesets';
+import { AbstractAction } from './AbstractAction';
 
 // actual actions
-export class Action extends AbstractAction<Movement> {
-	id = ActionId.Movement;
-
+export class MovementAction extends AbstractAction<Movement> {
 	doIsValid = () => {
 		const playerMoveset = this.state.board.tileMovesets.get(this.player.ownedTile.color);
 		const actionMovement = this.payload.toNumber(this.state.board);
@@ -32,20 +30,16 @@ export class Action extends AbstractAction<Movement> {
 		}
 		return true;
 	};
+
 	doExecute = () => {
 		this.player.move(this.payload);
 	};
+
+	isInputValid = (input: Record<string, unknown>): input is MovementInput => {
+		return input.hasOwnProperty('x') && input.hasOwnProperty('y');
+	};
+
+	inputToPayload = (input: MovementInput) => new Movement(input);
 }
 
-export type Input = ConstructorParameters<typeof Movement>[0];
-
-export function isInputValid(input: Record<string, unknown>): input is Input {
-	if (input.hasOwnProperty('x') && input.hasOwnProperty('y')) {
-		return true;
-	}
-	return false;
-}
-
-export function inputToPayload(input: Input): Movement {
-	return new Movement(input);
-}
+export type MovementInput = ConstructorParameters<typeof Movement>[0];

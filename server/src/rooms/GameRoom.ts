@@ -4,8 +4,12 @@ import { ExecuteActionCommand } from './command/ExecuteAction';
 import { GameRoomState } from './schema/GameRoomState';
 import { Player } from './schema/Player';
 import { Validator } from './core/Validatable';
-import { ActionPayload, createAction } from './schema/Actions';
 import { AddPlayerCommand } from './command/AddPlayer';
+import { Movement } from './schema/Movesets';
+import { MovementAction } from './schema/actions/Movement';
+import { MessageType } from '@shared/actions';
+import { Tile } from './schema/Tile';
+import { SwapTileAction } from './schema/actions/SwapTile';
 
 export class GameRoom extends Room<GameRoomState> {
 	private dispatcher = new Dispatcher(this);
@@ -19,25 +23,41 @@ export class GameRoom extends Room<GameRoomState> {
 		console.log('\nroom created.');
 		this.setState(new GameRoomState());
 
-		this.onMessage('execute-action',
-			(client, message: ActionPayload) => {
-				console.log('received execute-action');
-				if (!this.state.players.has(client.sessionId)) {
-					client.send('invalid-session-id');
-				}
-				const action = createAction(this.getPlayer(client), this.state, message);
-				Validator.for(action)
-					.ifInvalid(() => {
-						console.log('invalid-action', action.id);
-						client.send('invalid-action');
-					})
-					.ifValid(() => {
-						console.log('execute-action is valid');
-						this.dispatcher.dispatch(new ExecuteActionCommand(), {action});
-					})
-					.validate();
+		this.onMessage(MessageType.Movement, (client, message: Movement) => {
+			if (!this.state.players.has(client.sessionId)) {
+				client.send('invalid-session-id');
 			}
-		);
+			const action = new MovementAction(this.getPlayer(client), this.state);
+			action.payload = message;
+			Validator.for(action)
+				.ifInvalid(() => {
+					console.log('invalid-action', action.id);
+					client.send('invalid-action');
+				})
+				.ifValid(() => {
+					console.log('execute-action is valid');
+					this.dispatcher.dispatch(new ExecuteActionCommand(), {action});
+				})
+				.validate();
+		});
+
+		this.onMessage(MessageType.SwapTile, (client, message: Tile) => {
+			if (!this.state.players.has(client.sessionId)) {
+				client.send('invalid-session-id');
+			}
+			const action = new SwapTileAction(this.getPlayer(client), this.state);
+			action.payload = message;
+			Validator.for(action)
+				.ifInvalid(() => {
+					console.log('invalid-action', action.id);
+					client.send('invalid-action');
+				})
+				.ifValid(() => {
+					console.log('execute-action is valid');
+					this.dispatcher.dispatch(new ExecuteActionCommand(), {action});
+				})
+				.validate();
+		});
 
 		this.onMessage('test-message', 
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -3,6 +3,7 @@ import { Schema, type } from '@colyseus/schema';
 import { Player } from './Player';
 
 export enum PhaseType {
+	GateStart,
 	GameOver,
 }
 
@@ -20,6 +21,10 @@ export class PlayerPhase extends Phase {
 		this.type = actionId;
 		this.player = player;
 	}
+}
+
+export class GameStartPhase extends Phase {
+	type = PhaseType.GateStart;
 }
 
 export class GameOverPhase extends Phase {
